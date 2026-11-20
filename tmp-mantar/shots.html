@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-html,body{margin:0;height:100%;background:#222;font-family:Roboto,system-ui,sans-serif;overflow:hidden}
+html,body{margin:0;background:#222;font-family:Roboto,system-ui,sans-serif;overflow:hidden}
 #wrap{position:absolute;left:0;top:0;transform-origin:0 0}
 #phone{position:relative;width:360px;height:640px;background:#F7F1E8;overflow:hidden}
 #status{height:24px;background:#3E2A1C;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;box-sizing:border-box}
@@ -55,7 +55,8 @@ html,body{margin:0;height:100%;background:#222;font-family:Roboto,system-ui,sans
 </div></div>
 <script>
 const S = +(new URLSearchParams(location.search).get('s') || 1);
-function fit(){ const k = Math.min(innerHeight/640, innerWidth/360); document.getElementById('wrap').style.transform = `scale(${k})`; }
+const BIG = new URLSearchParams(location.search).get('big');
+function fit(){ if (BIG) { document.getElementById('wrap').style.zoom = 3; document.body.style.overflow='auto'; return; } const k = Math.min(innerHeight/640, innerWidth/360); document.getElementById('wrap').style.transform = `scale(${k})`; }
 fit(); addEventListener('resize', fit);
 const C = document.getElementById('content');
 document.getElementById('t' + ({1:0,2:0,3:2,4:0,5:1}[S])).classList.add('sel');
@@ -133,7 +134,7 @@ async function mapScreen(center, zoom, opts={}){
   <div class="row"><span class="tb">En uygun bölgeler</span><span class="tb">Neden bu puan?</span></div>
   <div class="note">Puan, mantar bulma ihtimali değildir; yalnızca hava ve orman koşullarının uygunluğunu gösterir.</div></div>`;
   const map = L.map('map',{zoomControl:false, attributionControl:true}).setView(center, zoom);
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',BIG?{attribution:'© OpenStreetMap',tileSize:128,zoomOffset:1}:{attribution:'© OpenStreetMap'}).addTo(map);
   const h = await heat(map, 0);
   document.getElementById('sc').textContent = Math.round(h.means[0]); document.getElementById('sc').style.color = rgb(h.means[0]);
   document.getElementById('lv').textContent = lvl(h.means[0]);
