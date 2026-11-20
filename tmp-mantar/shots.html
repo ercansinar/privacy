@@ -56,7 +56,7 @@ html,body{margin:0;background:#222;font-family:Roboto,system-ui,sans-serif;overf
 <script>
 const S = +(new URLSearchParams(location.search).get('s') || 1);
 const BIG = new URLSearchParams(location.search).get('big');
-function fit(){ if (BIG) { document.getElementById('wrap').style.zoom = 3; document.body.style.overflow='auto'; return; } const k = Math.min(innerHeight/640, innerWidth/360); document.getElementById('wrap').style.transform = `scale(${k})`; }
+function fit(){ if (BIG) { document.getElementById('wrap').style.zoom = Math.min(3, Math.floor((innerWidth-4)/360*100)/100); document.body.style.overflow='auto'; return; } const k = Math.min(innerHeight/640, innerWidth/360); document.getElementById('wrap').style.transform = `scale(${k})`; }
 fit(); addEventListener('resize', fit);
 const C = document.getElementById('content');
 document.getElementById('t' + ({1:0,2:0,3:2,4:0,5:1,6:0,7:0}[S])).classList.add('sel');
