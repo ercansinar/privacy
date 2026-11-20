@@ -54,6 +54,19 @@ html,body{margin:0;background:#222;font-family:Roboto,system-ui,sans-serif;overf
   </div>
 </div></div>
 <script>
+
+const LANG = new URLSearchParams(location.search).get('lang') || 'tr';
+const EN = {"BÖLGE UYGUNLUĞU · BUGÜN": "AREA CONDITIONS · TODAY", "Dokunduğun yer · Bugün": "Tapped spot · Today", "Bugün": "Today", "Yarın": "Tomorrow", "Çok yüksek": "Very high", "Çok düşük": "Very low", "Yüksek": "High", "Düşük": "Low", "Orta": "Moderate", "Bana en yakın uygun yer": "Nearest good spot", "Aracımı kaydet": "Save my car", "Araca dön": "Back to car", "Burayı mera işaretle": "Mark this spot", "Yolumu kaydet": "Record my path", "Kaydı durdur": "Stop recording", "İzimden geri dön": "Back along my path", "En uygun bölgeler": "Best areas", "Neden bu puan?": "Why this score?", "Puan, mantar bulma ihtimali değildir; yalnızca hava ve orman koşullarının uygunluğunu gösterir.": "The score is not a chance of finding mushrooms; it only rates how favourable weather and forest conditions are.", "Meralarım": "My Spots", "Acil Durum": "Emergency", "Ayarlar": "Settings", "Harita": "Map", "Son 14 gün yağış": "Rain, last 14 days", "Ortalama sıcaklık (7 gün)": "Mean temp (7 days)", "Nem (3 gün)": "Humidity (3 days)", "Orman örtüsü": "Forest cover", "Yükseklik": "Elevation", "Toprak nemi (yağış − buharlaşma)": "Soil moisture (rain − evaporation)", "Don günleri (5 gün)": "Frost days (5 days)", "Yol tarifi": "Directions", "Git": "Go", "Puan ": "Score ", "Konumum": "My location", "Doğruluk": "Accuracy", "Rakım": "Altitude", "Pil %84": "Battery 84%", "Kopyala": "Copy", "112 · Acil çağrı": "911 · Emergency call", "Türkiye": "United States", "Aradığında bu koordinatları görevliye oku.": "When you call, read these coordinates to the operator.", "Acil durum kişisi (telefon numarası)": "Emergency contact (phone number)", "0532 000 00 00": "+1 555 010 0000", "Konumumu SMS ile gönder": "Send my location by SMS", "Konumumu paylaş": "Share my location", "SOS ışığı": "SOS light", "Düdük sesi": "Whistle", "Bu ekran internetsiz çalışır. Arama ve SMS için şebeke yeterlidir.": "This screen works offline. Calls and SMS only need mobile signal.", "Aracım": "My car", "Telefonu düz tut; ok hedefi gösterir. İnternetsiz çalışır.": "Hold the phone flat; the arrow points to the target. Works offline.", "Kapat": "Close", "Meraların yalnızca bu telefonda saklanır, kimseyle paylaşılmaz.": "Your spots are stored only on this phone and never shared.", "Yol kaydı (ekran kapalıyken de)": "Path recording (also with screen off)", "Yürünen yol": "Walked", "Kanlıca mera": "Pine valley spot", "14 Kas 2026 · çam altı, dere kenarı": "Nov 14, 2026 · under pines, by the stream", "Çıntar yeri": "Milk cap spot", "2 Kas 2026 · yaşlı meşeler": "Nov 2, 2026 · old oaks", "Yayla yolu": "Highland trail", "27 Eki 2026": "Oct 27, 2026", "Kuzu göbeği": "Morel spot", "18 Nis 2026 · yanık alan kenarı": "Apr 18, 2026 · edge of burnt area"};
+function finish(){
+  if (LANG==='en') {
+    const keys = Object.keys(EN).sort((a,b)=>b.length-a.length);
+    const w = document.createTreeWalker(document.getElementById('phone'), NodeFilter.SHOW_TEXT);
+    const nodes=[]; while(w.nextNode()) nodes.push(w.currentNode);
+    for (const n of nodes) { let t=n.nodeValue; for (const k of keys) if (t.includes(k)) t=t.split(k).join(EN[k]); t=t.replace(/(\d),(\d)/g,'$1.$2'); n.nodeValue=t; }
+  }
+  document.title='ready';
+}
+
 const S = +(new URLSearchParams(location.search).get('s') || 1);
 const BIG = new URLSearchParams(location.search).get('big');
 function fit(){ if (BIG) { document.getElementById('wrap').style.zoom = Math.min(3, Math.floor((innerWidth-4)/360*100)/100); document.body.style.overflow='auto'; return; } const k = Math.min(innerHeight/640, innerWidth/360); document.getElementById('wrap').style.transform = `scale(${k})`; }
@@ -124,7 +137,7 @@ async function heat(map, day){
 }
 const lvl = s => s<20?'Çok düşük':s<40?'Düşük':s<60?'Orta':s<75?'Yüksek':'Çok yüksek';
 const rgb = s => { const c=color(s,255); return `rgb(${c[0]|0},${c[1]|0},${c[2]|0})`; };
-const dayName = (d,i) => i==0?'Bugün':i==1?'Yarın':new Date(d).toLocaleDateString('tr-TR',{weekday:'short'})+' '+(+d.slice(8));
+const dayName = (d,i) => i==0?'Bugün':i==1?'Yarın':new Date(d).toLocaleDateString(LANG==='en'?'en-US':'tr-TR',{weekday:'short'})+' '+(+d.slice(8));
 function dist(a,b,c,d){ const p1=a*Math.PI/180,p2=c*Math.PI/180,dp=p2-p1,dl=(d-b)*Math.PI/180; const x=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2; return 2*6371000*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
 const fmt = m => m<1000?Math.round(m)+' m':(m/1000).toFixed(1).replace('.',',')+' km';
 
@@ -170,7 +183,7 @@ async function mapScreen(center, zoom, opts={}){
     <div class="row"><span class="tb">Burayı mera işaretle</span><span class="tb">Git</span><span class="tb">Yol tarifi</span></div>`;
     el.style.bottom=(document.getElementById('bottom').offsetHeight+18)+'px';
   }
-  document.title='ready';
+  finish();
 }
 
 function sosScreen(){
@@ -186,7 +199,7 @@ function sosScreen(){
   <div class="row" style="gap:8px;margin-top:8px"><div class="ob" style="flex:1;height:50px;border-radius:25px">🔦 SOS ışığı</div><div class="ob" style="flex:1;height:50px;border-radius:25px">📢 Düdük sesi</div></div>
   <div class="ob" style="margin-top:8px;height:46px;border-radius:23px">🚗 Araca dön · 1,3 km</div>
   <div style="font-size:12px;color:#888;margin-top:8px">Bu ekran internetsiz çalışır. Arama ve SMS için şebeke yeterlidir.</div></div>`;
-  document.title='ready';
+  finish();
 }
 
 function guideScreen(){
@@ -201,7 +214,7 @@ function guideScreen(){
   <div style="flex:1"></div>
   <div style="width:100%;height:52px;border-radius:26px;background:#FFC107;color:#000;font-weight:700;display:flex;align-items:center;justify-content:center">➦ Yol tarifi</div>
   <div style="width:100%;height:40px;border-radius:20px;border:1px solid #aaa;display:flex;align-items:center;justify-content:center;margin-top:8px">Kapat</div></div>`;
-  document.title='ready';
+  finish();
 }
 
 function spotsScreen(){
@@ -215,7 +228,7 @@ function spotsScreen(){
   ${sp('🍄','Çıntar yeri','2 Kas 2026 · yaşlı meşeler','2,7 km')}
   ${sp('🍄','Yayla yolu','27 Eki 2026','6,4 km')}
   ${sp('🍄','Kuzu göbeği','18 Nis 2026 · yanık alan kenarı','11 km')}</div>`;
-  document.title='ready';
+  finish();
 }
 
 (async () => {
